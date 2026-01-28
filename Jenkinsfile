@@ -1,31 +1,16 @@
-pipeline {
-    agent any
-
-    tools {
-        maven 'Maven-3.9'
-        jdk 'JDK-17'
+node {
+    stage('Clone Repo') {
+        git 'https://github.com/dheer31/spring_movie_ticket.git'
     }
 
-    stages {
-        stage('Clone Repo') {
-            steps {
-                git 'https://github.com/your-username/spring-project.git'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                pkill -f app-name.jar || true
-                nohup java -jar target/app-name.jar > app.log 2>&1 &
-                '''
-            }
-        }
+    stage('Build') {
+        sh 'mvn clean package -DskipTests'
     }
-} were i need to psate it 
+
+    stage('Deploy') {
+        sh '''
+        pkill -f jar || true
+        nohup java -jar target/*.jar > app.log 2>&1 &
+        '''
+    }
+}
