@@ -1,16 +1,37 @@
-node {
-    stage('Clone Repo') {
-        git 'https://github.com/dheer31/spring_movie_ticket.git'
+pipeline {
+    agent any
+    tools {
+        maven 'maven'
     }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh '''
+                    echo "Stopping existing Spring Boot application if running..."
+                    if pgrep -f spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null; then
+                        sudo pkill -f spring_app_sak-0.0.1-SNAPSHOT.jar
+                        echo "Application stopped."
+                    else
+                        echo "No existing application running."
+                    fi
 
-    stage('Build') {
-        sh 'mvn clean package -DskipTests'
+                    echo "Starting the Spring Boot application..."
+                    sudo java -jar target/spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                '''
+            }
+        }
     }
-
-    stage('Deploy') {
-        sh '''
-        pkill -f jar || true
-        nohup java -jar target/*.jar > app.log 2>&1 &
-        '''
+    post {
+        success {
+            echo "Deployed successfully"
+        }
+        failure {
+            echo "Failed to Deploy"
+        }
     }
 }
