@@ -27,6 +27,7 @@ pipeline {
 
                     echo "Starting Spring Boot app in background..."
                     nohup java -jar target/boot-movie-crud-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+
                     sleep 5
                 '''
             }
