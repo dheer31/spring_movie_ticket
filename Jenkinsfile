@@ -25,8 +25,9 @@ pipeline {
                     echo "Stopping old Spring Boot app if running..."
                     pkill -f boot-movie-crud || true
 
-                    echo "Starting Spring Boot app..."
+                    echo "Starting Spring Boot app in background..."
                     nohup java -jar target/boot-movie-crud-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+                    sleep 5
                 '''
             }
         }
@@ -35,9 +36,6 @@ pipeline {
     post {
         success {
             echo "Spring Boot application deployed successfully"
-        }
-        failure {
-            echo "Deployment failed"
         }
     }
 }
