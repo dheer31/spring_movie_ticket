@@ -1,38 +1,33 @@
-
 pipeline {
     agent any
-    tools {
-        maven 'maven'
-    }
+
     stages {
-        stage('Build') {
+
+        stage('Checkout') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                git 'https://github.com/sakit333/sak_spring_jenkins_mysql.git'
             }
         }
-        stage('Deploy') {
+
+        stage('Build') {
             steps {
                 sh '''
-                    echo "Stopping existing Spring Boot application if running..."
-                    if pgrep -f spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null; then
-                        sudo pkill -f spring_app_sak-0.0.1-SNAPSHOT.jar
-                        echo "Application stopped."
-                    else
-                        echo "No existing application running."
-                    fi
-
-                    echo "Starting the Spring Boot application..."
-                    sudo java -jar target/spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                    chmod +x mvnw
+                    ./mvnw clean package -DskipTests
                 '''
             }
         }
-    }
-    post {
-        success {
-            echo "Deployed successfully"
-        }
-        failure {
-            echo "Failed to Deploy"
+
+        stage('Deploy to App Server') {
+            steps {
+                sh '''
+                scp target/*.jar ec2-user@<APP_PRIVATE_IP>:/home/ec2-user/
+                ssh ec2-user@<APP_PRIVATE_IP> "
+                  pkill -f '.jar' || true
+                  nohup java -jar /home/ec2-user/*.jar > app.log 2>&1 &
+                "
+                '''
+            }
         }
     }
 }
