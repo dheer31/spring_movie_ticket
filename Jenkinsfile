@@ -3,12 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/sakit333/sak_spring_jenkins_mysql.git'
-            }
-        }
-
         stage('Build') {
             steps {
                 sh '''
@@ -18,16 +12,22 @@ pipeline {
             }
         }
 
-        stage('Deploy to App Server') {
+        stage('Deploy') {
             steps {
                 sh '''
-                scp target/*.jar ec2-user@<APP_PRIVATE_IP>:/home/ec2-user/
-                ssh ec2-user@<APP_PRIVATE_IP> "
-                  pkill -f '.jar' || true
-                  nohup java -jar /home/ec2-user/*.jar > app.log 2>&1 &
-                "
+                    echo "Stopping old app if running..."
+                    pkill -f 'spring_app_sak' || true
+
+                    echo "Starting Spring Boot app..."
+                    nohup java -jar target/*.jar > app.log 2>&1 &
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Application deployed successfully"
         }
     }
 }
