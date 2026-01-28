@@ -1,21 +1,31 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven-3.9'
+        jdk 'JDK-17'
+    }
+
     stages {
-        stage('Checkout') {
+        stage('Clone Repo') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/dheer31/spring_movie_ticket.git'
+                git 'https://github.com/your-username/spring-project.git'
             }
         }
 
         stage('Build') {
             steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
                 sh '''
-                    chmod +x mvnw
-                    ./mvnw clean package -DskipTests
+                pkill -f app-name.jar || true
+                nohup java -jar target/app-name.jar > app.log 2>&1 &
                 '''
             }
         }
     }
-}
+} were i need to psate it 
