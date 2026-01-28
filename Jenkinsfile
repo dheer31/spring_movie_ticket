@@ -1,37 +1,37 @@
 pipeline {
     agent any
+
     tools {
         maven 'maven'
     }
+
     stages {
+
         stage('Build') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
+
         stage('Deploy') {
             steps {
                 sh '''
-                    echo "Stopping existing Spring Boot application if running..."
-                    if pgrep -f spring_movie_ticket-0.0.1-SNAPSHOT.jar > /dev/null; then
-                        sudo pkill -f spring_movie_ticket-0.0.1-SNAPSHOT.jar
-                        echo "Application stopped."
-                    else
-                        echo "No existing application running."
-                    fi
+                    echo "Stopping old Spring Boot app..."
+                    pkill -f ".jar" || true
 
-                    echo "Starting the Spring Boot application..."
-                    sudo java -jar target/spring_movie_ticket-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                    echo "Starting new Spring Boot app..."
+                    nohup java -jar target/*.jar > app.log 2>&1 &
                 '''
             }
         }
     }
+
     post {
         success {
-            echo "Deployed successfully"
+            echo "✅ Build & deploy completed"
         }
         failure {
-            echo "Failed to Deploy"
+            echo "❌ Pipeline failed"
         }
     }
 }
