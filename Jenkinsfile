@@ -13,15 +13,15 @@ pipeline {
             steps {
                 sh '''
                     echo "Stopping existing Spring Boot application if running..."
-                    if pgrep -f spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null; then
-                        sudo pkill -f spring_app_sak-0.0.1-SNAPSHOT.jar
+                    if pgrep -f spring_movie_ticket-0.0.1-SNAPSHOT.jar > /dev/null; then
+                        sudo pkill -f spring_movie_ticket-0.0.1-SNAPSHOT.jar
                         echo "Application stopped."
                     else
                         echo "No existing application running."
                     fi
 
                     echo "Starting the Spring Boot application..."
-                    sudo java -jar target/spring_app_sak-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                    sudo java -jar target/spring_movie_ticket-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
                 '''
             }
         }
