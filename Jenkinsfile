@@ -3,6 +3,13 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/dheer31/spring_movie_ticket.git'
+            }
+        }
+
         stage('Build') {
             steps {
                 sh '''
@@ -15,11 +22,11 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    echo "Stopping old app if running..."
-                    pkill -f 'spring_app_sak' || true
+                    echo "Stopping old Spring Boot app if running..."
+                    pkill -f boot-movie-crud || true
 
                     echo "Starting Spring Boot app..."
-                    nohup java -jar target/*.jar > app.log 2>&1 &
+                    nohup java -jar target/boot-movie-crud-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
                 '''
             }
         }
@@ -27,7 +34,10 @@ pipeline {
 
     post {
         success {
-            echo "Application deployed successfully"
+            echo "Spring Boot application deployed successfully"
+        }
+        failure {
+            echo "Deployment failed"
         }
     }
 }
