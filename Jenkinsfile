@@ -1,6 +1,3 @@
-
-
-
 pipeline {
     agent any
 
@@ -12,7 +9,7 @@ pipeline {
         choice(
             name: 'ACTION',
             choices: ['Deploy', 'Remove'],
-            description: 'Select the action to perform on Docker Compose stack'
+            description: 'Deploy or Remove application'
         )
     }
 
@@ -25,7 +22,7 @@ pipeline {
             steps {
                 echo "🚀 Building and starting Spring Boot & MySQL containers..."
                 sh '''
-                docker-compose -f $COMPOSE_FILE up -d --build
+                docker compose -f $COMPOSE_FILE up -d --build
                 '''
             }
         }
@@ -35,11 +32,10 @@ pipeline {
                 expression { params.ACTION == 'Remove' }
             }
             steps {
-                echo "🧹 Stopping containers and cleaning Docker resources..."
+                echo "🧹 Cleaning Docker resources..."
                 sh '''
-                docker-compose -f $COMPOSE_FILE down --rmi all --volumes --remove-orphans
+                docker compose -f $COMPOSE_FILE down --rmi all --volumes --remove-orphans
                 docker system prune -af
-                docker volume prune -f
                 '''
             }
         }
