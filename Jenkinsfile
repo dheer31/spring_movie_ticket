@@ -1,26 +1,45 @@
+
+
+
 pipeline {
     agent any
 
-    tools {
-        maven 'maven'
+    environment {
+        COMPOSE_FILE = 'docker-compose.yml'
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['Deploy', 'Remove'],
+            description: 'Select the action to perform on Docker Compose stack'
+        )
     }
 
     stages {
 
-        stage('Build') {
+        stage('Docker Compose Deploy') {
+            when {
+                expression { params.ACTION == 'Deploy' }
+            }
             steps {
-                sh 'mvn clean package -DskipTests'
+                echo "🚀 Building and starting Spring Boot & MySQL containers..."
+                sh '''
+                docker-compose -f $COMPOSE_FILE up -d --build
+                '''
             }
         }
 
-        stage('Deploy') {
+        stage('Docker Compose Remove & Cleanup') {
+            when {
+                expression { params.ACTION == 'Remove' }
+            }
             steps {
+                echo "🧹 Stopping containers and cleaning Docker resources..."
                 sh '''
-                    echo "Stopping old Spring Boot app..."
-                    pkill -f ".jar" || true
-
-                    echo "Starting new Spring Boot app..."
-                    nohup java -jar target/*.jar > app.log 2>&1 &
+                docker-compose -f $COMPOSE_FILE down --rmi all --volumes --remove-orphans
+                docker system prune -af
+                docker volume prune -f
                 '''
             }
         }
@@ -28,10 +47,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build & deploy completed"
+            echo "✅ Pipeline executed successfully! - Designed and Developed by dhee31"
         }
         failure {
-            echo "❌ Pipeline failed"
+            echo "❌ Pipeline failed. Check Jenkins logs! - Designed and Developed by dhee31"
         }
     }
 }
