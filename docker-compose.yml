@@ -3,7 +3,7 @@ version: "3.8"
 services:
   mysql-db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: movie_mysql_db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 1234
