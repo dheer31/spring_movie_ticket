@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        COMPOSE_FILE = 'docker-compose.yml'
-    }
-
     parameters {
         choice(
             name: 'ACTION',
@@ -22,7 +18,7 @@ pipeline {
             steps {
                 echo "🚀 Building and starting Spring Boot & MySQL containers..."
                 sh '''
-                docker compose -f $COMPOSE_FILE up -d --build
+                docker compose up -d --build
                 '''
             }
         }
@@ -34,7 +30,7 @@ pipeline {
             steps {
                 echo "🧹 Cleaning Docker resources..."
                 sh '''
-                docker compose -f $COMPOSE_FILE down --rmi all --volumes --remove-orphans
+                docker compose down --rmi all --volumes --remove-orphans
                 docker system prune -af
                 '''
             }
